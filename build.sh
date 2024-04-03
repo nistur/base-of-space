@@ -1,10 +1,8 @@
 #!/bin/bash
 
-ABS_FORWARD_ARC=45
-BFG_FORWARD_ARC=90
+TARGET=${1:-BFG}
 
-ABS_SIZES="25 30 40 60"
-BFG_SIZES="32 60"
+QUIET="-q"
 
 if [ -z "${SCAD}" ] ; then
        SCAD=$(which openscad)
@@ -13,15 +11,34 @@ if [ -z "${SCAD}" ] ; then
     echo "Unable to find OpenSCAD. Try setting environment SCAD to it. Eg SCAD=/usr/bin/scad $0"
     exit 1
 fi
-echo "Using SCAD=${SCAD}"
+[ ${QUIET} ] || echo "Using SCAD=${SCAD}"
 
-
-mkdir -p ABS
-for i in ${ABS_SIZES} ; do
-    ${SCAD} -o ABS/${ABS_FORWARD_ARC}-${i}mm.stl -D base_diameter=${i} -D arc_angle=${ABS_FORWARD_ARC} base.scad
+. config/${TARGET}.cfg
+mkdir -p ${TARGET}
+for i in ${SIZES[@]} ; do
+    echo -n "Creating base ${i}mm"
+    FILENAME="${TARGET}/${FORWARD_ARC}-${i}mm${SUFFIX}.stl"
+    echo " -->  ${FILENAME}"
+    ${SCAD} -o "${FILENAME}" -D base_diameter=${i} \
+	    -D base_height=${HEIGHT} \
+	    -D arc_angle=${FORWARD_ARC} \
+	    -D peg_diameter=${PEG_DIAMETER} \
+	    -D peg_height=${PEG_HEIGHT} \
+	    -D nubbin_height=${NUBBIN_HEIGHT} \
+	    ${QUIET} base.scad
 done
 
-mkdir -p BFG
-for i in ${BFG_SIZES} ; do
-    ${SCAD} -o BFG/${BFG_FORWARD_ARC}-${i}mm.stl -D base_diameter=${i} -D arc_angle=${BFG_FORWARD_ARC} base.scad
-done
+if [ ${STEMS} ] ; then
+    for i in ${STEMS[@]} ; do
+	echo "Creating stem ${i}mm"
+	FILENAME="${TARGET}/stem_${i}mm.stl"
+	echo " --> ${FILENAME}"
+	${SCAD} -o "${FILENAME}" -D stem_height=${i} \
+		-D stem_diameter=${STEM_DIAMETER} \
+		-D stem_taper=${STEM_TAPER} \
+		-D peg_diameter=${PEG_DIAMETER} \
+		-D peg_height=${PEG_HEIGHT} \
+		-D pin_diameter=${PIN_DIAMETER} \
+		${QUIET} stem.scad
+    done
+fi

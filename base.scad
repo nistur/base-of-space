@@ -1,6 +1,7 @@
 $fn=360;
 
-stem_diameter=2;
+peg_diameter = 2;
+peg_height=1.5;
 stem_fit=0.05;
 base_diameter=25;
 base_height=2;
@@ -12,6 +13,8 @@ nameplate_depth=0.3;
 nameplate_height=5;
 nameplate_angle=90;
 nameplate_thickness=1;
+nubbin_height = 1;
+nubbin_thickness=1;
 
 chamfer_height=1;
 arc_diameter=base_diameter-((arc_spacing + chamfer_height)*2);
@@ -31,8 +34,9 @@ module base()
 		{
 			cylinder(r=base_diameter/2,h=base_height-chamfer_height);
 			translate([0,0,base_height-chamfer_height]) cylinder(r1=base_diameter/2, r2=(base_diameter/2)-chamfer_height,h=chamfer_height);
+		        translate([0,0,base_height]) cylinder(r=(peg_diameter/2)+nubbin_thickness, h=nubbin_height);
 		}
-		translate([0,0,0.5]) cylinder(r=(stem_diameter/2)+stem_fit, h=base_height+0.2);
+		translate([0,0,base_height+nubbin_height-peg_height]) cylinder(r=(peg_diameter/2)+stem_fit, h=peg_height + 0.1);
 	}
 }
 
@@ -58,7 +62,7 @@ module firing_arc()
 	difference()
 	{
 		sector(arc_depth+0.1, arc_diameter, -arc_angle/2, arc_angle/2);
-		translate([0,0,-0.1]) cylinder(r=(stem_diameter/2)+arc_spacing,h=arc_depth+0.3);
+		translate([0,0,-0.1]) cylinder(r=(peg_diameter/2)+arc_spacing,h=arc_depth+0.3);
 	}
 }
 
