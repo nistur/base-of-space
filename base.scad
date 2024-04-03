@@ -14,7 +14,7 @@ nameplate_height=5;
 nameplate_angle=90;
 nameplate_thickness=1;
 nubbin_height = 1;
-nubbin_thickness=1;
+nubbin_diameter=4;
 
 chamfer_height=1;
 arc_diameter=base_diameter-((arc_spacing + chamfer_height)*2);
@@ -28,16 +28,11 @@ inner_nameplate_arc_angle=(inner_nameplate_arc_length*360)/(nameplate_diameter*P
 
 module base()
 {
-	difference()
-	{
-		union()
-		{
-			cylinder(r=base_diameter/2,h=base_height-chamfer_height);
-			translate([0,0,base_height-chamfer_height]) cylinder(r1=base_diameter/2, r2=(base_diameter/2)-chamfer_height,h=chamfer_height);
-		        translate([0,0,base_height]) cylinder(r=(peg_diameter/2)+nubbin_thickness, h=nubbin_height);
-		}
-		translate([0,0,base_height+nubbin_height-peg_height]) cylinder(r=(peg_diameter/2)+stem_fit, h=peg_height + 0.1);
-	}
+    union()
+    {
+	cylinder(r=base_diameter/2,h=base_height-chamfer_height);
+	translate([0,0,base_height-chamfer_height]) cylinder(r1=base_diameter/2, r2=(base_diameter/2)-chamfer_height,h=chamfer_height);
+    }
 }
 
 module sector(h, d, a1, a2) {
@@ -85,10 +80,22 @@ module name_plate()
 
 difference()
 {
-	union()
+    union()
+    {    
+	difference()
 	{
+	    union()
+	    {
 		base();
 		translate([0,0,base_height]) name_plate();
+	    }
+	    translate([0,0,base_height-arc_depth]) firing_arc();
 	}
-	translate([0,0,base_height-arc_depth]) firing_arc();
+	if(nubbin_height>0)
+	{
+	    cylinder(d=nubbin_diameter, h=nubbin_height+base_height);
+	}
+    }
+    translate([0,0,base_height+nubbin_height-(peg_height+stem_fit)]) cylinder(r=(peg_diameter/2)+stem_fit, h=peg_height + 0.1+stem_fit);    
 }
+

@@ -30,7 +30,7 @@ done
 
 if [ ${STEMS} ] ; then
     for i in ${STEMS[@]} ; do
-	echo "Creating stem ${i}mm"
+	echo -n "Creating stem ${i}mm"
 	FILENAME="${TARGET}/stem_${i}mm.stl"
 	echo " --> ${FILENAME}"
 	${SCAD} -o "${FILENAME}" -D stem_height=${i} \
